@@ -30,7 +30,7 @@ RTC module sketch
 
 ![](assets/20240921_215236_rtc.jpg)
 
-[LCD module sketch](/blob/main/lcd-i2c/lcd-i2c.ino)
+[LCD module sketch](/lcd-i2c/lcd-i2c.ino)
 
 ![](assets/20240921_215255_lcd.jpg)
 
