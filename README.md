@@ -26,14 +26,16 @@ I have sent off for the parts I dont already have, while I wait for those to arr
 
 A servo for the lock, LCD display + interface, Arduino Uno, DS1307, and buttons for interface.
 
-RTC module sketch
+[RTC module sketch](/rtc-clock/rtc-clock.ino)
 
 ![](assets/20240921_215236_rtc.jpg)
+
 
 [LCD module sketch](/lcd-i2c/lcd-i2c.ino)
 
 ![](assets/20240921_215255_lcd.jpg)
 
-RTC + LCD combined sketch
+
+[RTC + LCD combined sketch](/rct-lcd-clock/rct-lcd-clock.ino)
 
 ![](assets/20240921_215306_rtc-lcd.jpg)
