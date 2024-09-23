@@ -31,11 +31,19 @@ A servo for the lock, LCD display + interface, Arduino Uno, DS1307, and buttons 
 ![](assets/20240921_215236_rtc.jpg)
 
 
+
 [LCD module sketch](/lcd-i2c/lcd-i2c.ino)
 
 ![](assets/20240921_215255_lcd.jpg)
 
 
+
 [RTC + LCD combined sketch](/rct-lcd-clock/rct-lcd-clock.ino)
 
 ![](assets/20240921_215306_rtc-lcd.jpg)
+
+
+
+[Prototype 1](/prototype-1/prototype-1.ino)
+
+![](assets/20240923_141401_proto-1.png)

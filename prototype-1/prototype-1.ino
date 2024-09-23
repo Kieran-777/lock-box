@@ -11,8 +11,8 @@ Servo myServo;
   int targetYear = 2024;
   int targetMonth = 9;
   int targetDay = 22;
-  int targetHour = 11;
-  int targetMinute = 10;
+  int targetHour = 19;
+  int targetMinute = 18;
   int targetSeconds = 00;
 
   int redLED = 3; // Red LED connected to digital pin 3
