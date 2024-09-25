@@ -15,8 +15,8 @@ Servo myServo;
   int targetMinute = 18;
   int targetSeconds = 00;
 
-  int redLED = 3; // Red LED connected to digital pin 3
-  int greenLED = 2; // Green LED connected to digital pin 2
+  int redLED = 4; // Red LED connected to digital pin 3
+  int greenLED = 5; // Green LED connected to digital pin 2
  
 void setup() {
 
@@ -38,8 +38,10 @@ void setup() {
   pinMode(redLED, OUTPUT);   // Set red LED pin as output
   pinMode(greenLED, OUTPUT); // Set green LED pin as output
 
+  // Servo setup
   myServo.attach(9);
 
+  // Rotary-Encoder setup
 
 
 }
