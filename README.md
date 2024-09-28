@@ -52,4 +52,7 @@ A servo for the lock, LCD display + interface, Arduino Uno, DS1307, and buttons 
 
 [Prototype 2](/prototype_2/prototype_2.ino)
 
+
+![](assets/20240928_092803_1_lock_box_-_prototype_2.png)
+
 ![](assets/20240928_092241_proto2.jpeg)
