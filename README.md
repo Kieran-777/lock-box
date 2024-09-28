@@ -13,13 +13,21 @@ DESIGNS
 **Part List**
 
 Arduino Nano - Brains
+
 TP4056 - Battery Charging board
+
 18650 Cells - Battery
+
 Push pull mini solenoid - Lock
+
 DS1307 I2C - Clock module
+
 KY-040 Rotary Encoder - User Interface
+
 LCM1602C - LCD Display
-PCF8574T I2C Interface Board - nicer LCD intergration
+
+PCF8574T I2C Interface Board - nicer LCD integration
+
 All sort of other electrical gubbinz, CHANGE THIS UPON COMPLETION
 
 I have sent off for the parts I dont already have, while I wait for those to arrive I'm going to build a prototype using what I already have:
@@ -30,20 +38,18 @@ A servo for the lock, LCD display + interface, Arduino Uno, DS1307, and buttons 
 
 ![](assets/20240921_215236_rtc.jpg)
 
-
-
 [LCD module sketch](/lcd-i2c/lcd-i2c.ino)
 
 ![](assets/20240921_215255_lcd.jpg)
-
-
 
 [RTC + LCD combined sketch](/rct-lcd-clock/rct-lcd-clock.ino)
 
 ![](assets/20240921_215306_rtc-lcd.jpg)
 
-
-
 [Prototype 1](/prototype-1/prototype-1.ino)
 
 ![](assets/20240923_141401_proto-1.png)
+
+[Prototype 2](/prototype_2/prototype_2.ino)
+
+![](assets/20240928_092241_proto2.jpeg)
