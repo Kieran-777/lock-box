@@ -2,6 +2,18 @@
 #include <LiquidCrystal_I2C.h>
 #include <RTClib.h>
 #include <Servo.h>
+#include <FastLED.h>
+
+// LED Strip setup
+FASTLED_USING_NAMESPACE
+#define DATA_PIN    11
+#define LED_TYPE    WS2811
+#define COLOR_ORDER GRB
+#define NUM_LEDS    30
+CRGB leds[NUM_LEDS];
+#define BRIGHTNESS          96
+#define FRAMES_PER_SECOND  120
+uint8_t gHue = 0;
 
 // LCD and RTC setup
 LiquidCrystal_I2C lcd(0x27, 16, 2);
@@ -68,6 +80,11 @@ void setup() {
   // Set default target to 00d 00h 00m 00s from now
   DateTime now = RTC.now();
   target = now + TimeSpan(0, 0, 0, 0);  // Default 0 minute from now
+
+  // tell FastLED about the LED strip configuration
+  FastLED.addLeds<LED_TYPE,DATA_PIN,COLOR_ORDER>(leds, NUM_LEDS).setCorrection(TypicalLEDStrip);
+  // set master brightness control
+  FastLED.setBrightness(BRIGHTNESS);
 }
 
 void loop() {
@@ -257,4 +274,12 @@ void unlockBox() {
     delay(20); 
     // Turn off blinking LCD cursor   
     lcd.blink_off();
+
+    ledStrip();
+}
+
+void ledStrip() {
+    fill_rainbow( leds, NUM_LEDS, gHue, 7);
+    FastLED.delay(1000/FRAMES_PER_SECOND); 
+    EVERY_N_MILLISECONDS( 20 ) { gHue++; };
 }
