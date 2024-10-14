@@ -1,7 +1,7 @@
 #include <Wire.h>
 #include <LiquidCrystal_I2C.h>
 #include <RTClib.h>
-#include <Servo.h>
+// #include <Servo.h>
 #include <FastLED.h>
 
 // LED Strip setup
@@ -18,7 +18,8 @@ uint8_t gHue = 0;
 // LCD and RTC setup
 LiquidCrystal_I2C lcd(0x27, 16, 2);
 RTC_DS3231 RTC;
-Servo myServo;
+
+// Servo myServo;
 
 // Countdown setup (Default target time: 00d 00h 01m 00s)
 int targetYear = 2024;
@@ -36,8 +37,12 @@ int tempTargetSeconds = targetSeconds;
 
 DateTime target;  // Fixed target DateTime
 
+// Leds
 const int redLED = 7;
 const int greenLED = 8;
+
+// Open lid button
+const int lidButton = 10; 
 
 // Rotary-Encoder pins
 const int clkPin = 2;
@@ -49,8 +54,8 @@ int counter = 0;
 int currentStateClk;
 int lastStateClk;
 int buttonState;
-unsigned long lastDebounceTime = 0;
-unsigned long debounceDelay = 5;
+unsigned long lastEncoderTime = 0;
+unsigned long debounceInterval = 5; 
 
 // Set mode variables
 int setMode = 0;  // 0: Normal countdown mode, 1: Setting time mode, 2: Lock confirmation mode
@@ -69,7 +74,9 @@ void setup() {
   pinMode(redLED, OUTPUT);
   pinMode(greenLED, OUTPUT);
 
-  myServo.attach(9);
+  // myServo.attach(9);
+
+  pinMode(lidButton, INPUT);
 
   pinMode(clkPin, INPUT);
   pinMode(dtPin, INPUT);
@@ -256,10 +263,12 @@ void lockBox() {
     digitalWrite(redLED, HIGH);
     digitalWrite(greenLED, LOW);
     // Move servo to lock position
-    myServo.write(90);
-    delay(20);
+    // myServo.write(90);
+    // delay(20);
     // Turn off blinking LCD cursor   
     lcd.blink_off();
+    ledStripOff();
+
 }
 
 void unlockBox() {
@@ -270,16 +279,28 @@ void unlockBox() {
     lcd.setCursor(0, 1);
     lcd.print("00d 00h 00m 00s");
     // Move servo to unlock position
-    myServo.write(0);
-    delay(20); 
+    // myServo.write(0);
+    // delay(20); 
     // Turn off blinking LCD cursor   
     lcd.blink_off();
 
-    ledStrip();
+    if (lidButton == LOW) {
+      ledStripOn();
+    }
+    else {
+      ledStripOff();
+    }
+    
 }
 
-void ledStrip() {
+void ledStripOn() {
     fill_rainbow( leds, NUM_LEDS, gHue, 7);
+    FastLED.show();
     FastLED.delay(1000/FRAMES_PER_SECOND); 
     EVERY_N_MILLISECONDS( 20 ) { gHue++; };
+}
+
+void ledStripOff() {
+    fill_solid(leds, NUM_LEDS, CRGB::Black); 
+    FastLED.show();
 }
