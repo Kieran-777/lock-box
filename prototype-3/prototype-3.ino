@@ -1,6 +1,7 @@
 #include <Wire.h>
 #include <LiquidCrystal_I2C.h>
 #include <RTClib.h>
+#include <Encoder.h>  // Encoder library v1.4.4
 // #include <Servo.h>
 #include <FastLED.h>
 
@@ -21,7 +22,9 @@ int ledStripState = 0;
 LiquidCrystal_I2C lcd(0x27, 16, 2);
 RTC_DS3231 RTC;
 
+// lock
 // Servo myServo;
+const int lockPin = 5;
 
 // Countdown setup (Default target time: 00d 00h 01m 00s)
 int targetYear = 2024;
@@ -52,13 +55,12 @@ const int clkPin = 2;
 const int dtPin = 3;
 const int swPin = 4;
 
+// Rotary Encoder using Encoder library
+Encoder myEncoder(clkPin, dtPin);
+
 // Rotary Encoder state
-int counter = 0;
-int currentStateClk;
-int lastStateClk;
+long lastPosition = -999;
 int buttonState;
-unsigned long lastEncoderTime = 0;
-unsigned long debounceInterval = 10; 
 
 // Set mode variables
 int setMode = 0;  // 0: Normal countdown mode, 1: Setting time mode, 2: Lock confirmation mode
@@ -72,20 +74,16 @@ void setup() {
   Serial.begin(9600);
   Wire.begin();
   RTC.begin();
-  RTC.adjust(DateTime(__DATE__, __TIME__));
+  //RTC.adjust(DateTime(__DATE__, __TIME__));
 
   pinMode(redLED, OUTPUT);
   pinMode(greenLED, OUTPUT);
 
   // myServo.attach(9);
+  pinMode(lockPin, OUTPUT);
 
   pinMode(lidButton, INPUT);
-
-  pinMode(clkPin, INPUT);
-  pinMode(dtPin, INPUT);
   pinMode(swPin, INPUT_PULLUP);
-
-  lastStateClk = digitalRead(clkPin);
 
   // Set default target to 00d 00h 00m 00s from now
   DateTime now = RTC.now();
@@ -95,7 +93,6 @@ void setup() {
   FastLED.addLeds<LED_TYPE,DATA_PIN,COLOR_ORDER>(leds, NUM_LEDS).setCorrection(TypicalLEDStrip);
   // set master brightness control
   FastLED.setBrightness(BRIGHTNESS);
-
 }
 
 void loop() {
@@ -119,56 +116,29 @@ void loop() {
 }
 
 void handleEncoder(DateTime now) {
-  currentStateClk = digitalRead(clkPin);
-
-  if (currentStateClk != lastStateClk) {
-    if (digitalRead(dtPin) != currentStateClk) {
-      Serial.print("RE - decrement");
-      counter++;
-    } else {
-      counter--; // Previously counter--; but encoder noise kept decrementing values, maybe fix, might be nicer...
-      Serial.print("RE - increment");
-    }
-
-    if (setMode == 1) {
-      // Adjust the selected field (days, hours, minutes, seconds) based on encoder rotation
-      switch (selectedField) {
-        case 0: 
-          tempTargetDay += (counter > 0) ? 1 : -1;
-          if (tempTargetDay < 0) tempTargetDay = 0;  // Prevent negative days
-          break;
-        case 1: 
-          tempTargetHour += (counter > 0) ? 1 : -1;
-          if (tempTargetHour < 0) tempTargetHour = 0;  // Prevent negative hours
-          break;
-        case 2: 
-          tempTargetMinute += (counter > 0) ? 1 : -1;
-          if (tempTargetMinute < 0) tempTargetMinute = 0;  // Prevent negative minutes
-          break;
-        case 3: 
-          tempTargetSeconds += (counter > 0) ? 1 : -1;
-          if (tempTargetSeconds < 0) tempTargetSeconds = 0;  // Prevent negative seconds
-          break;
-      }
-      lcd.blink();
-    }
-
-    if (setMode == 2) {
-      // Toggle between "Yes" and "No" for lock confirmation
-      if (counter > 0) {
+  long newPosition = myEncoder.read();
+  if (newPosition != lastPosition) {
+    if (newPosition > lastPosition) {
+      Serial.println("RE - increment");
+      if (setMode == 1) {
+        adjustTargetTime(-1);
+      } else if (setMode == 2) {
         lockSelection = 0;  // "Yes"
-      } else if (counter < 0) {
+      }
+    } else if (newPosition < lastPosition) {
+      Serial.println("RE - decrement");
+      if (setMode == 1) {
+        adjustTargetTime(1);
+      } else if (setMode == 2) {
         lockSelection = 1;  // "No"
       }
     }
-
-    counter = 0;
+    lastPosition = newPosition;
   }
 
-  lastStateClk = currentStateClk;
-
   if (digitalRead(swPin) == LOW) {
-    //delay(200);  // Button debounce
+    // Button debounce
+    delay(200);
 
     if (setMode == 0) {
       // Enter set time mode
@@ -208,6 +178,28 @@ void handleEncoder(DateTime now) {
       }
     }
   }
+}
+
+void adjustTargetTime(int direction) {
+  switch (selectedField) {
+    case 0: 
+      tempTargetDay += direction;
+      if (tempTargetDay < 0) tempTargetDay = 0;  // Prevent negative days
+      break;
+    case 1: 
+      tempTargetHour += direction;
+      if (tempTargetHour < 0) tempTargetHour = 0;  // Prevent negative hours
+      break;
+    case 2: 
+      tempTargetMinute += direction;
+      if (tempTargetMinute < 0) tempTargetMinute = 0;  // Prevent negative minutes
+      break;
+    case 3: 
+      tempTargetSeconds += direction;
+      if (tempTargetSeconds < 0) tempTargetSeconds = 0;  // Prevent negative seconds
+      break;
+  }
+  lcd.blink();
 }
 
 void setTargetTime() {
@@ -269,12 +261,12 @@ void lockBox() {
     digitalWrite(redLED, HIGH);
     digitalWrite(greenLED, LOW);
     // Move servo to lock position
+    digitalWrite(lockPin, LOW);
     // myServo.write(90);
     // delay(20);
     // Turn off blinking LCD cursor   
     lcd.blink_off();
     ledStripOff();
-
 }
 
 void unlockBox() {
@@ -285,6 +277,7 @@ void unlockBox() {
     lcd.setCursor(0, 1);
     lcd.print("00d 00h 00m 00s");
     // Move servo to unlock position
+    digitalWrite(lockPin, HIGH);
     // myServo.write(0);
     // delay(20); 
     // Turn off blinking LCD cursor   
